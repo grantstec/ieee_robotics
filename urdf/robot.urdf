@@ -11,7 +11,7 @@
 <box size="0.206 0.200 0.052"/>  <!-- 206mm x 200mm x 52mm -->
 </geometry>
 <material name="gray"/>
-</visual> git config --global user.name "grant"
+</visual> 
 </link>
  
   <!-- ============================= -->
