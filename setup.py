@@ -25,8 +25,9 @@ setup(
     entry_points={
         'console_scripts': [
             'fire_detection_node = ieee_robotics.fire_detection_node:main',
-            'firehose_controller = ieee_robotics.firehose_controller:main',
-            'odometry_publisher = ieee_robotics.odometry_publisher:main',
+            'arduino_bridge = ieee_robotics.arduino_bridge:main',
+            'teensy_bridge = ieee_robotics.teensy_bridge:main',
+            'wheel_odometry = ieee_robotics.wheel_odometry:main',
         ],
     },
 )
