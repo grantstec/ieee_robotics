@@ -24,7 +24,7 @@
 <!-- Adjust wheel radius and thickness -->
 <cylinder radius="0.045" length="0.015"/>  <!-- 90mm diameter, 15mm thick -->
 </geometry>
-<material name="black"/>
+<material name="red"/>
 </visual>
 </link>
  
