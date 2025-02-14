@@ -8,7 +8,7 @@
 <visual>
 <geometry>
 <!-- Adjust chassis size here (length x width x height) -->
-<box size="0.206 0.200 0.052"/>  <!-- 206mm x 200mm x 52mm -->
+<box size="0.20 0.206 0.052"/>  <!-- X (length)=0.206m, Y (width)=0.200m -->
 </geometry>
 <material name="gray"/>
 </visual> 
@@ -81,27 +81,8 @@
 </visual>
 </link>
  
-  <!-- IR Camera (MLX90640) -->
-<link name="ir_camera">
-<visual>
-<geometry>
-<box size="0.03 0.03 0.02"/>  <!-- 3cm x 3cm x 2cm -->
-</geometry>
-<material name="green"/>
-</visual>
-</link>
  
-  <!-- ============================= -->
-<!-- 4. FIREHOSE MOTOR -->
-<!-- ============================= -->
-<link name="firehose_motor">
-<visual>
-<geometry>
-<cylinder radius="0.02" length="0.04"/>  <!-- Adjust motor size -->
-</geometry>
-<material name="black"/>
-</visual>
-</link>
+
  
   <!-- ============================= -->
 <!-- 5. JOINTS (Connections) -->
@@ -111,15 +92,15 @@
 <parent link="base_link"/>
 <child link="front_left_wheel"/>
 <!-- Adjust wheel placement on X (forward), Y (left/right), Z (height) -->
-<origin xyz="-0.1105 0.05 0" rpy="0 1.57 0"/>
-<axis xyz="0 0 1"/>
+<origin xyz="0.05 0.1105 0" rpy="-1.57 1.57 0"/>
+<axis xyz="0 0 01"/>
 </joint>
  
   <!-- Joint: Front Right Wheel (Rotates) -->
 <joint name="front_right_wheel_joint" type="continuous">
 <parent link="base_link"/>
 <child link="front_right_wheel"/>
-<origin xyz="0.1105 0.05 0" rpy="0 1.57 0"/>
+<origin xyz="0.05 -0.1105 0" rpy="1.57 1.57 0"/>
 <axis xyz="0 0 1"/>
 </joint>
  
@@ -127,14 +108,14 @@
 <joint name="rear_left_wheel_joint" type="fixed">
 <parent link="base_link"/>
 <child link="rear_left_wheel"/>
-<origin xyz="-0.1105 -0.05 0" rpy="0 1.57 0"/>
+<origin xyz="-0.09 0.1105 0" rpy="-1.57 1.57 0"/>
 </joint>
  
   <!-- Joint: Rear Right Omni-Wheel (Fixed) -->
 <joint name="rear_right_wheel_joint" type="fixed">
 <parent link="base_link"/>
 <child link="rear_right_wheel"/>
-<origin xyz="0.1105 -0.05 0" rpy="0 1.57 0"/>
+<origin xyz="-0.09 -0.1105 0" rpy="1.57 1.57 0"/>
 </joint>
  
   <!-- Joint: LIDAR (Fixed to Chassis) -->
@@ -142,29 +123,15 @@
 <parent link="base_link"/>
 <child link="lidar"/>
 <!-- Adjust LIDAR height (Z) -->
-<origin xyz="0 0.05 0.02" rpy="0 0 0"/>
+<origin xyz="0.05 0 0.02" rpy="0 0 0"/>
 </joint>
  
   <!-- Joint: IMU (Fixed to Chassis) -->
 <joint name="imu_joint" type="fixed">
 <parent link="base_link"/>
 <child link="imu"/>
-<origin xyz="0 0.05 0" rpy="0 0 0"/>
+<origin xyz="0.05 0 0.0" rpy="0 0 0"/>
 </joint>
  
-  <!-- Joint: IR Camera (Fixed to Chassis, in Front) -->
-<joint name="ir_camera_joint" type="fixed">
-<parent link="base_link"/>
-<child link="ir_camera"/>
-<!-- Adjust camera position forward (+X) and height (Z) -->
-<origin xyz="0 0.15 0.1" rpy="0 0 0"/>
-</joint>
- 
-  <!-- Joint: Firehose Motor -->
-<joint name="firehose_motor_joint" type="fixed">
-<parent link="base_link"/>
-<child link="firehose_motor"/>
-<origin xyz="-0.15 0 0.05" rpy="0 0 0"/>
-</joint>
  
 </robot>
