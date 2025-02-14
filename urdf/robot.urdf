@@ -11,7 +11,7 @@
 <box size="0.206 0.200 0.052"/>  <!-- 206mm x 200mm x 52mm -->
 </geometry>
 <material name="gray"/>
-</visual>
+</visual> git config --global user.name "grant"
 </link>
  
   <!-- ============================= -->
@@ -42,7 +42,7 @@
 <link name="rear_left_wheel">
 <visual>
 <geometry>
-<cylinder radius="0.05" length="0.02"/>
+<cylinder radius="0.045" length="0.015"/>
 </geometry>
 <material name="gray"/>
 </visual>
@@ -52,7 +52,7 @@
 <link name="rear_right_wheel">
 <visual>
 <geometry>
-<cylinder radius="0.05" length="0.02"/>
+<cylinder radius="0.045" length="0.015"/>
 </geometry>
 <material name="gray"/>
 </visual>
@@ -111,7 +111,7 @@
 <parent link="base_link"/>
 <child link="front_left_wheel"/>
 <!-- Adjust wheel placement on X (forward), Y (left/right), Z (height) -->
-<origin xyz="-0.103 0.05 0" rpy="0 1.57 0"/>
+<origin xyz="-0.1105 0.05 0" rpy="0 1.57 0"/>
 <axis xyz="0 1 0"/>
 </joint>
  
@@ -119,7 +119,7 @@
 <joint name="front_right_wheel_joint" type="continuous">
 <parent link="base_link"/>
 <child link="front_right_wheel"/>
-<origin xyz="0.103 0.05 0" rpy="0 1.57 0"/>
+<origin xyz="0.1105 0.05 0" rpy="0 1.57 0"/>
 <axis xyz="0 1 0"/>
 </joint>
  
@@ -127,14 +127,14 @@
 <joint name="rear_left_wheel_joint" type="fixed">
 <parent link="base_link"/>
 <child link="rear_left_wheel"/>
-<origin xyz="-0.1 -0.1 0" rpy="0 0 0"/>
+<origin xyz="-0.1105 -0.05 0" rpy="0 1.57 0"/>
 </joint>
  
   <!-- Joint: Rear Right Omni-Wheel (Fixed) -->
 <joint name="rear_right_wheel_joint" type="fixed">
 <parent link="base_link"/>
 <child link="rear_right_wheel"/>
-<origin xyz="0.1 -0.1 0" rpy="0 0 0"/>
+<origin xyz="0.1105 -0.05 0" rpy="0 1.57 0"/>
 </joint>
  
   <!-- Joint: LIDAR (Fixed to Chassis) -->
