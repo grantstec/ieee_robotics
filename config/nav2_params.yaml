@@ -1,0 +1,14 @@
+planner_server:
+  ros__parameters:
+    expected_planner_frequency: 1.0
+    GridBased:
+      allow_unknown: True
+      use_final_approach_orientation: False
+      xy_goal_tolerance: 0.1
+      yaw_goal_tolerance: 0.05
+
+controller_server:
+  ros__parameters:
+    controller_frequency: 20.0
+    progress_checker_plugin: "progress_checker"
+    goal_checker_plugin: "goal_checker"
