@@ -8,12 +8,13 @@ import math
 
 class WheelOdometry(Node):
     def __init__(self):
+        super().__init__('wheel_odometry')  
         # [!] MUST MATCH PHYSICAL ROBOT [!]
         self.declare_parameters(
             namespace='',
             parameters=[
-                ('wheel_radius', 0.04445),  # [!] Measure actual wheel radius
-                ('base_width', 0.3),        # [!] Measure distance between wheels
+                ('wheel_radius', 0.045),  # [!] Measure actual wheel radius
+                ('base_width', 0.21),        # [!] Measure distance between wheels
                 ('steps_per_rev', 3200)     # [!] 200 steps * 16 microsteps
             ]
         )

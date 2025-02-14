@@ -27,6 +27,7 @@ setup(
             'fire_detection_node = ieee_robotics.fire_detection_node:main',
             'arduino_bridge = ieee_robotics.arduino_bridge:main',
             'teensy_bridge = ieee_robotics.teensy_bridge:main',
+            'twist_to_motors = ieee_robotics.twist_to_motors:main',  # Add this line
             'wheel_odometry = ieee_robotics.wheel_odometry:main',
         ],
     },

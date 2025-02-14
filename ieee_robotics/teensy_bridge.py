@@ -9,7 +9,7 @@ class TeensyBridge(Node):
         super().__init__('teensy_bridge')
         
         # Parameters
-        self.declare_parameter('port', '/dev/ttyACM1')
+        self.declare_parameter('port', '/dev/ttyACM0')
         self.declare_parameter('baudrate', 115200)
         self.declare_parameter('timeout', 1.0)
         
