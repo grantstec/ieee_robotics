@@ -51,12 +51,17 @@ class ArduinoBridge(Node):
                 target_left = (msg.linear.x - (msg.angular.z * base_width/2)) * steps_per_meter
                 target_right = (msg.linear.x + (msg.angular.z * base_width/2)) * steps_per_meter
                 
-                # Apply acceleration limiting
-                self.current_left_speed = self.limit_acceleration(
-                    self.current_left_speed, target_left, self.max_accel)
-                self.current_right_speed = self.limit_acceleration(
-                    self.current_right_speed, target_right, self.max_accel)
+                if msg.linear.x == 0.0 and msg.angular.z == 0.0:
+                    self.current_left_speed = 0.0
+                    self.current_right_speed = 0.0
+                else:
+                    # Apply acceleration limits only during movement
+                    self.current_left_speed = self.limit_acceleration(
+                        self.current_left_speed, target_left, self.max_accel)
+                    self.current_right_speed = self.limit_acceleration(
+                        self.current_right_speed, target_right, self.max_accel)
                 
+                # Send absolute position commands
                 cmd_str = f"CMD:{int(self.current_left_speed)},{int(self.current_right_speed)}\n"
                 self.serial.write(cmd_str.encode())
                 
