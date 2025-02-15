@@ -15,7 +15,7 @@ class ArduinoBridge(Node):
         self.declare_parameter('baudrate', 115200)
         self.declare_parameter('timeout', 1.0)
         self.declare_parameter('steps_per_meter', 11459.0)  # 3.5" wheels
-        self.declare_parameter('wheel_base', 0.3)  # meters
+        self.declare_parameter('wheel_base', 0.206)  # meters
         
         # Publishers/Subscribers
         self.step_pub = self.create_publisher(JointState, 'wheel_steps', 10)
