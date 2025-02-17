@@ -1,22 +1,75 @@
-
+# SLAM Toolbox parameters (used for mapping and localization)
 slam_toolbox:
   ros__parameters:
-    max_laser_range: 12.0
     resolution: 0.05
-    map_file_name: "competition_map"
-    map_start_pose: [0.0, 0.0, 0.0] 
+    map_file_name: ""  # Ensure this is empty so SLAM Toolbox does not try to load a file
+    map_start_pose: [0.0, 0.0, 0.0]
+    use_sim_time: False  # Change if needed
+    base_frame: 'base_link'
+    odom_frame: 'odom'
+    map_frame: 'map'
+    max_laser_range: 10.0  # A1M8's max range
+    transform_publish_period: 0.02
 
+# AMCL parameters to help with initial pose transform issues
+
+# Global costmap: covers the overall environment (e.g. the entire field)
+global_costmap:
+  ros__parameters:
+    global_frame: "map"
+    robot_base_frame: "base_link"
+    update_frequency: 5.0
+    publish_frequency: 2.0
+    width: 2.4384       # Adjust these to cover your competition field (in meters)
+    height: 2.4384
+    resolution: 0.05
+    rolling_window: false
+    transform_tolerance: 0.5
+
+# Local costmap: used for immediate obstacle avoidance
+local_costmap:
+  ros__parameters:
+    global_frame: "odom"
+    robot_base_frame: "base_link"
+    update_frequency: 10.0
+    publish_frequency: 10.0
+    rolling_window: true
+    robot_radius: 0.13  # 6 inches
+    inflation_radius: 0.01  # 1.1 feet
+    resolution: 0.05
+    transform_tolerance: 0.5
+
+# Planner server: sets up the global path planner
 planner_server:
   ros__parameters:
     expected_planner_frequency: 1.0
+    planner_plugin_types: ["GridBased"]
     GridBased:
       allow_unknown: True
       use_final_approach_orientation: False
-      xy_goal_tolerance: 0.1
+      xy_goal_tolerance: 0.05
       yaw_goal_tolerance: 0.05
 
+# Controller server: handles path following
 controller_server:
   ros__parameters:
-    controller_frequency: 20.0
-    progress_checker_plugin: "progress_checker"
-    goal_checker_plugin: "goal_checker"
+    controller_plugins: ["FollowPath"]
+    FollowPath:
+      plugin: "dwb_core::DWBLocalPlanner"
+      min_vel_x: 0.0
+      max_vel_x: 0.1
+      min_vel_theta: -0.1
+      max_vel_theta: 0.1
+      # DWB parameters
+      critics: ["ObstacleFootprintCritic", "GoalAlignCritic", "PathAlignCritic"]
+      ObstacleFootprintCritic:
+        enabled: True
+        cost_scaling_factor: 10.0
+      GoalAlignCritic:
+        enabled: True
+        scaling_radius: 0.5
+      PathAlignCritic:
+        enabled: True
+        scaling_radius: 0.5
+
+

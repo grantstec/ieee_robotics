@@ -15,8 +15,8 @@ def generate_launch_description():
                 'base_frame': 'base_link',
                 'odom_frame': 'odom',
                 'map_frame': 'map',
-                'resolution': 0.1,  # 5cm grid resolution
-                'max_laser_range': 12.0,  # A1M8's max range
+                'resolution': 0.05,  # 10cm grid resolution
+                'max_laser_range': 10.0,  # A1M8's max range
                 'transform_publish_period': 0.02
             }]
         ),
