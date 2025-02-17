@@ -42,23 +42,48 @@ class TeensyBridge(Node):
             while self.serial.in_waiting > 0:
                 line = self.serial.readline().decode('utf-8').strip()
                 
-                if line.startswith('ORI:'):
+                if line.startswith('IMU:'):
                     _, data = line.split(':')
-                    x, y, z, w = map(float, data.split(','))
+                    values = list(map(float, data.split(',')))
+                    
+                    if len(values) != 10:  # Fixed length check
+                        self.get_logger().warn("Invalid IMU data")
+                        return
                     
                     msg = Imu()
                     msg.header.stamp = self.get_clock().now().to_msg()
                     msg.header.frame_id = 'imu_link'
                     
-                    # Quaternion orientation
-                    msg.orientation.x = x
-                    msg.orientation.y = y
-                    msg.orientation.z = z
-                    msg.orientation.w = w
-                    msg.orientation_covariance = self.orientation_covariance
+                    # Orientation
+                    msg.orientation.x = values[0]
+                    msg.orientation.y = values[1]
+                    msg.orientation.z = values[2]
+                    msg.orientation.w = values[3]
+                    
+                    # Angular velocity (rad/s)
+                    msg.angular_velocity.x = values[4]
+                    msg.angular_velocity.y = values[5]
+                    msg.angular_velocity.z = values[6]
+                    
+                    # Linear acceleration (m/s²)
+                    msg.linear_acceleration.x = values[7]
+                    msg.linear_acceleration.y = values[8]
+                    msg.linear_acceleration.z = values[9]
+                    
+                    # Covariances (update these based on your sensor specs)
+                    msg.orientation_covariance = [
+                        0.01, 0.0, 0.0,
+                        0.0, 0.01, 0.0,
+                        0.0, 0.0, 0.01
+                    ]
+                    msg.angular_velocity_covariance = [
+                        0.001, 0.0, 0.0,
+                        0.0, 0.001, 0.0,
+                        0.0, 0.0, 0.001
+                    ]
                     
                     self.imu_pub.publish(msg)
-                    
+                        
         except Exception as e:
             self.get_logger().error(f"Teensy read error: {str(e)}")
             self.connect_serial()

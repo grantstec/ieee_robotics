@@ -63,11 +63,6 @@ def generate_launch_description():
             name='joint_state_publisher'
         ),
         Node(
-            package='tf2_ros',
-            executable='static_transform_publisher',
-            arguments=['0', '0', '0', '0', '0', '0', 'odom', 'base_link']
-        ),
-        Node(
             package='ieee_robotics',
             executable='twist_to_motors',
             name='twist_to_motors'
