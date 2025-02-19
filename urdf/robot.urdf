@@ -92,7 +92,7 @@
 <parent link="base_link"/>
 <child link="front_left_wheel"/>
 <!-- Adjust wheel placement on X (forward), Y (left/right), Z (height) -->
-<origin xyz="0.05 0.1105 0" rpy="1.57 1.57 0"/>
+<origin xyz="0.05 0.1105 0" rpy="-1.57 1.57 0"/>
 <axis xyz="0 0 1"/>
 </joint>
  
@@ -123,7 +123,7 @@
 <parent link="base_link"/>
 <child link="lidar"/>
 <!-- Adjust LIDAR height (Z) -->
-<origin xyz="0.05 0 0.089" rpy="0 0 0"/>
+<origin xyz="0.05 0 0.089" rpy="0 0 3.1416"/>
 </joint>
  
   <!-- Joint: IMU (Fixed to Chassis) -->

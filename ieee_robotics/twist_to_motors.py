@@ -20,8 +20,8 @@ class TwistToMotors(Node):
 
     def twist_callback(self, msg):
         # Differential drive conversion
-        left = (msg.linear.x - (msg.angular.z * self.wheel_base / 2)) / self.wheel_radius
-        right = (msg.linear.x + (msg.angular.z * self.wheel_base / 2)) / self.wheel_radius
+        left = (-msg.linear.x + (msg.angular.z * self.wheel_base / 2)) / self.wheel_radius
+        right = (-msg.linear.x - (msg.angular.z * self.wheel_base / 2)) / self.wheel_radius
         
         cmd = Twist()
         cmd.linear.x = left
