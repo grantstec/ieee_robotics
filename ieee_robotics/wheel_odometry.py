@@ -58,8 +58,8 @@ class WheelOdometry(Node):
         wheel_circumference = 2 * math.pi * self.get_parameter('wheel_radius').value
         meters_per_step = wheel_circumference / self.get_parameter('steps_per_rev').value
         
-        d_left_m = -d_left * meters_per_step
-        d_right_m = -d_right * meters_per_step
+        d_left_m = d_left * meters_per_step
+        d_right_m = d_right * meters_per_step
         
         # Calculate odometry
         linear = (d_left_m + d_right_m) / 2
