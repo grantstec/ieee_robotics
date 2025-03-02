@@ -1,11 +1,59 @@
-async_slam_toolbox:
+slam_toolbox:
   ros__parameters:
-    scan_topic: /scan
-    scan_queue_size: 30
-    throttle_scans: 4  # Process every 4th scan
-    transform_publish_period: 0.1
-    minimum_time_interval: 0.2
+    # ROS Parameters
+    use_sim_time: false
+    
+    # Robot-specific parameters
+    base_frame: base_link
+    odom_frame: odom
+    map_frame: map
+    
+    # Optimization for Jetson Xavier NX
+    solver_plugin: solver_plugins::CeresSolver
+    ceres_linear_solver: SPARSE_NORMAL_CHOLESKY
+    ceres_preconditioner: SCHUR_JACOBI
+    ceres_trust_strategy: LEVENBERG_MARQUARDT
+    ceres_dogleg_type: TRADITIONAL_DOGLEG
+    ceres_loss_function: HUBER_LOSS
+    mode: mapping
+    debug_logging: false
+    throttle_scans: 1
+    transform_publish_period: 0.02
     map_update_interval: 2.0
     resolution: 0.05
-    max_lidar_range: 12.0  # Match your RPLIDAR specs
-    minimum_lidar_range: 0.1  # Prevent invalid readings
+    max_laser_range: 10.0 # for RPLidar A1M8
+    minimum_time_interval: 0.2
+    transform_timeout: 0.2
+    tf_buffer_duration: 20.0
+    stack_size_to_use: 10000000 # program needs a larger stack size to serialize large maps
+    enable_interactive_mode: false
+
+    # Multithreading settings (leverage Xavier NX cores)
+    threads: 6
+    use_multithread: true
+
+    # SLAM specific parameters
+    use_scan_matching: true
+    use_scan_barycenter: true
+    minimum_travel_distance: 0.2
+    minimum_travel_heading: 0.1
+    scan_buffer_size: 10
+    scan_buffer_maximum_scan_distance: 10.0
+    link_match_minimum_response_fine: 0.1  
+    link_scan_maximum_distance: 1.5
+    loop_search_maximum_distance: 3.0
+    do_loop_closing: true
+    loop_match_minimum_chain_size: 10
+    loop_match_maximum_variance_coarse: 3.0
+    loop_match_minimum_response_coarse: 0.35    
+    loop_match_minimum_response_fine: 0.45
+
+    # Correlation Parameters - Correlation Parameters
+    correlation_search_space_dimension: 0.5
+    correlation_search_space_resolution: 0.01
+    correlation_search_space_smear_deviation: 0.1
+
+    # Correlation Parameters - Loop Closure Parameters
+    loop_search_space_dimension: 8.0
+    loop_search_space_resolution: 0.05
+    loop_search_space_smear_deviation: 0.03

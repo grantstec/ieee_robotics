@@ -14,6 +14,7 @@ setup(
         ('share/' + package_name + '/config', glob('config/*.yaml')),
         ('share/' + package_name + '/urdf', glob('urdf/*.urdf')),
         ('share/' + package_name + '/maps', glob('maps/*')),
+        ('share/' + package_name + '/scripts', glob('scripts/*.sh')),
         ('share/' + package_name, ['package.xml']),
     ],
     install_requires=['setuptools'],
@@ -27,9 +28,10 @@ setup(
             'fire_detection_node = ieee_robotics.fire_detection_node:main',
             'arduino_bridge = ieee_robotics.arduino_bridge:main',
             'teensy_bridge = ieee_robotics.teensy_bridge:main',
-            'twist_to_motors = ieee_robotics.twist_to_motors:main',  # Add this line
+            'twist_to_motors = ieee_robotics.twist_to_motors:main',
             'wheel_odometry = ieee_robotics.wheel_odometry:main',
+            'gpu_image_processor = ieee_robotics.gpu_image_processor:main',  # Add GPU processor
+            'system_monitor = ieee_robotics.system_monitor:main',  # Add system monitor
         ],
     },
 )
-

@@ -2,21 +2,57 @@ ekf_filter:
     ros__parameters:
         frequency: 50.0
         two_d_mode: true
+        publish_tf: true
         
+        # Wheel odometry input
         odom0: wheel_odom
-        odom0_config: [true, true, false,   # X, Y position
-                      false, false, true,  # Yaw orientation
-                      true, true, false,   # X, Y velocity
-                      false, false, true]  # Yaw rate
+        odom0_config: [true, true, false,   # x, y, z position (use x, y)
+                      false, false, true,   # roll, pitch, yaw (use yaw only)
+                      true, true, false,    # vx, vy, vz (use vx, vy)
+                      false, false, true,   # vroll, vpitch, vyaw (use vyaw only)
+                      false, false, false]  # ax, ay, az (don't use acceleration)
         odom0_differential: false
+        odom0_relative: false
+        odom0_queue_size: 10
         
+        # IMU input
         imu0: imu/data_raw
-        imu0_config: [true, true, true,   # Disable orientation
-                     true, true, true,      # Angular velocity
-                     false, false, false,   # Linear acceleration
-                     false, false, false]   # Disable orientation fields
+        imu0_config: [false, false, false,  # x, y, z position (IMU doesn't provide position)
+                     false, false, true,    # roll, pitch, yaw (use yaw for heading)
+                     false, false, false,   # vx, vy, vz (IMU doesn't provide velocity)
+                     false, false, true,    # vroll, vpitch, vyaw (use vyaw for turn rate)
+                     true, true, false]     # ax, ay, az (use ax, ay for acceleration)
+        imu0_differential: false
+        imu0_relative: false
+        imu0_queue_size: 10
         imu0_remove_gravitational_acceleration: true
         
+        # Advanced filtering
+        use_control: false
+        smooth_lagged_data: true
+        reset_on_time_jump: true
+        predict_to_current_time: true
+        
+        # Frames
         world_frame: odom
         odom_frame: odom
         base_link_frame: base_link
+        map_frame: map
+        
+        # Process noise covariance matrix (reduced size for readability)
+        # Increase values to trust sensor data more, decrease to trust model more
+        process_noise_covariance: [0.05, 0,    0,    0,    0,    0,    0,     0,     0,    0,    0,    0,    0,    0,    0,
+                                 0,    0.05, 0,    0,    0,    0,    0,     0,     0,    0,    0,    0,    0,    0,    0,
+                                 0,    0,    0.06, 0,    0,    0,    0,     0,     0,    0,    0,    0,    0,    0,    0,
+                                 0,    0,    0,    0.03, 0,    0,    0,     0,     0,    0,    0,    0,    0,    0,    0,
+                                 0,    0,    0,    0,    0.03, 0,    0,     0,     0,    0,    0,    0,    0,    0,    0,
+                                 0,    0,    0,    0,    0,    0.06, 0,     0,     0,    0,    0,    0,    0,    0,    0,
+                                 0,    0,    0,    0,    0,    0,    0.025, 0,     0,    0,    0,    0,    0,    0,    0,
+                                 0,    0,    0,    0,    0,    0,    0,     0.025, 0,    0,    0,    0,    0,    0,    0,
+                                 0,    0,    0,    0,    0,    0,    0,     0,     0.04, 0,    0,    0,    0,    0,    0,
+                                 0,    0,    0,    0,    0,    0,    0,     0,     0,    0.01, 0,    0,    0,    0,    0,
+                                 0,    0,    0,    0,    0,    0,    0,     0,     0,    0,    0.01, 0,    0,    0,    0,
+                                 0,    0,    0,    0,    0,    0,    0,     0,     0,    0,    0,    0.02, 0,    0,    0,
+                                 0,    0,    0,    0,    0,    0,    0,     0,     0,    0,    0,    0,    0.01, 0,    0,
+                                 0,    0,    0,    0,    0,    0,    0,     0,     0,    0,    0,    0,    0,    0.01, 0,
+                                 0,    0,    0,    0,    0,    0,    0,     0,     0,    0,    0,    0,    0,    0,    0.015]
