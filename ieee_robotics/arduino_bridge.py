@@ -5,21 +5,25 @@ from rclpy.node import Node
 from sensor_msgs.msg import JointState
 from geometry_msgs.msg import Twist
 import serial
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy
 
 class ArduinoBridge(Node):
     def __init__(self):
         super().__init__('arduino_bridge')
         
-        # Parameters
+        # Parameters - Foxy style
         self.declare_parameter('port', '/dev/ttyACM1')
         self.declare_parameter('baudrate', 115200)
         self.declare_parameter('timeout', 1.0)
-        self.declare_parameter('steps_per_meter', 11459.0)  # 3.5" wheels
-        self.declare_parameter('wheel_base', 0.206)  # meters
+        self.declare_parameter('steps_per_meter', 11459.0)
+        self.declare_parameter('wheel_base', 0.206)
+        
+        # QoS profile for Foxy
+        qos = QoSProfile(depth=10, reliability=QoSReliabilityPolicy.RELIABLE)
         
         # Publishers/Subscribers
-        self.step_pub = self.create_publisher(JointState, 'wheel_steps', 10)
-        self.cmd_sub = self.create_subscription(Twist, 'cmd_vel', self.cmd_callback, 10)
+        self.step_pub = self.create_publisher(JointState, 'wheel_steps', qos)
+        self.cmd_sub = self.create_subscription(Twist, 'cmd_vel', self.cmd_callback, qos)
         
         # Serial connection
         self.serial = None

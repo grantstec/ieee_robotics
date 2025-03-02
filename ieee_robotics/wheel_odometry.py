@@ -5,30 +5,29 @@ from sensor_msgs.msg import JointState
 from geometry_msgs.msg import TransformStamped
 from tf2_ros import TransformBroadcaster
 import math
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy
 
 class WheelOdometry(Node):
     def __init__(self):
         super().__init__('wheel_odometry')  
-        # [!] MUST MATCH PHYSICAL ROBOT [!]
-        self.declare_parameters(
-            namespace='',
-            parameters=[
-                ('wheel_radius', 0.045),  # [!] Measure actual wheel radius
-                ('base_width', 0.21),        # [!] Measure distance between wheels
-                ('steps_per_rev', 3200)     # [!] 200 steps * 16 microsteps
-            ]
-        )
+        # In Foxy, declare parameters individually
+        self.declare_parameter('wheel_radius', 0.045)
+        self.declare_parameter('base_width', 0.21)
+        self.declare_parameter('steps_per_rev', 3200)
+        
+        # QoS profile for Foxy
+        qos = QoSProfile(depth=10, reliability=QoSReliabilityPolicy.RELIABLE)
         
         # Subscriber
         self.subscription = self.create_subscription(
             JointState,
             'wheel_steps',
             self.step_callback,
-            10
+            qos
         )
         
         # Publisher
-        self.odom_pub = self.create_publisher(Odometry, 'wheel_odom', 10)
+        self.odom_pub = self.create_publisher(Odometry, 'wheel_odom', qos)
         
         # TF Broadcaster
         self.tf_broadcaster = TransformBroadcaster(self)
@@ -54,7 +53,7 @@ class WheelOdometry(Node):
         d_left = current_left - self.prev_left
         d_right = current_right - self.prev_right
         
-        # Convert steps to meters
+        # Convert steps to meters - parameter access is different in Foxy
         wheel_circumference = 2 * math.pi * self.get_parameter('wheel_radius').value
         meters_per_step = wheel_circumference / self.get_parameter('steps_per_rev').value
         

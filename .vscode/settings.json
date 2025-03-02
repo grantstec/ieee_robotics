@@ -1,13 +1,11 @@
 {
     "python.autoComplete.extraPaths": [
-        "/home/grant/robot_ws/install/ieee_robotics/lib/python3.10/site-packages",
-        "/opt/ros/humble/lib/python3.10/site-packages",
-        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+        "/home/grant/foxy_robot_ws/install/ieee_robotics/lib/python3.8/site-packages",
+        "/opt/ros/foxy/lib/python3.8/site-packages"
     ],
     "python.analysis.extraPaths": [
-        "/home/grant/robot_ws/install/ieee_robotics/lib/python3.10/site-packages",
-        "/opt/ros/humble/lib/python3.10/site-packages",
-        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+        "/home/grant/foxy_robot_ws/install/ieee_robotics/lib/python3.8/site-packages",
+        "/opt/ros/foxy/lib/python3.8/site-packages"
     ],
-    "ros.distro": "humble"
+    "ros.distro": "foxy"
 }
