@@ -1,35 +1,99 @@
 #!/bin/bash
-# Xavier NX Optimization for ROS2 Foxy
+# Comprehensive Xavier NX Setup for ROS2 Foxy with GPU Acceleration
 
-echo "Setting up Xavier NX for ROS2 Foxy with GPU acceleration..."
+set -e  # Exit immediately if a command exits with a non-zero status
 
-# Maximum performance mode
-sudo nvpmodel -m 0  # MAXN mode
-sudo jetson_clocks   # Max clock speeds
+# Logging function
+log() {
+    echo "[XAVIER SETUP] $1"
+}
 
-# Create CUDA configuration directory if it doesn't exist
-mkdir -p ~/.cuda
+# Ensure script is run with sudo
+if [[ $EUID -ne 0 ]]; then
+   log "This script must be run with sudo" 
+   exit 1
+fi
 
-# Configure CUDA environment
-cat > ~/.cuda/foxy_cuda_setup.sh << 'EOF'
-#!/bin/bash
-# CUDA setup for ROS2 Foxy on Xavier NX
+# 1. System Performance Configuration
+log "Configuring maximum performance mode..."
+nvpmodel -m 0  # MAXN mode
+jetson_clocks   # Max clock speeds
 
-# CUDA paths
-export PATH=/usr/local/cuda/bin${PATH:+:${PATH}}
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+# CPU Performance
+for cpu in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+    echo performance > "$cpu"
+done
 
-# OpenCV CUDA settings
+# 2. CUDA and GPU Dependencies
+log "Installing CUDA and GPU dependencies..."
+apt update
+apt install -y \
+    cuda-toolkit-11-4 \
+    libcudnn8 \
+    libcudnn8-dev \
+    libopencv-dev \
+    python3-opencv \
+    python3-numpy
+
+# 3. GPU Monitoring Tools
+log "Installing GPU monitoring tools..."
+apt install -y \
+    nvidia-jetson-gpu-status \
+    gpu-tools
+
+# Attempt snap install for nvtop
+if ! command -v nvtop &> /dev/null; then
+    snap install nvtop || {
+        log "Warning: nvtop snap installation failed. Attempting source build..."
+        apt install -y cmake libncurses5-dev libncursesw5-dev git
+        git clone https://github.com/Syllo/nvtop.git /tmp/nvtop
+        cd /tmp/nvtop
+        mkdir build && cd build
+        cmake ..
+        make
+        make install
+    }
+fi
+
+# 4. ROS2 Foxy and Dependencies
+log "Ensuring ROS2 Foxy dependencies are installed..."
+apt install -y \
+    ros-foxy-desktop \
+    python3-rosdep \
+    python3-rosinstall-generator \
+    python3-vcstool \
+    python3-rosinstall
+
+# Initialize rosdep
+rosdep init
+rosdep update
+
+# 5. CUDA Environment Configuration
+log "Configuring CUDA environment..."
+CUDA_CONFIG="/etc/profile.d/cuda.sh"
+cat > "$CUDA_CONFIG" << 'EOF'
+# CUDA Environment
+export CUDA_HOME=/usr/local/cuda
+export PATH=$CUDA_HOME/bin:$PATH
+export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
 export OPENCV_DNN_CUDA=ON
+EOF
 
-# ROS2 Foxy with CycloneDDS for better performance
-export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+# Verify OpenCV CUDA Support
+python3 -c "
+import cv2
+cuda_devices = cv2.cuda.getCudaEnabledDeviceCount()
+print(f'OpenCV CUDA Devices: {cuda_devices}')
+if cuda_devices > 0:
+    print('GPU acceleration is available.')
+else:
+    print('WARNING: No CUDA devices detected!')
+"
 
-# Create CycloneDDS config directory if it doesn't exist
-mkdir -p ~/cyclonedds_config
-
-# Better CycloneDDS configuration for robotics
-cat > ~/cyclonedds_config/cyclonedds.xml << 'XML_EOF'
+# 6. ROS2 Performance Tuning
+log "Configuring ROS2 performance settings..."
+mkdir -p /etc/ros/rosdep
+cat > /etc/ros/rosdep/50-cyclonedds.xml << 'EOF'
 <?xml version="1.0" encoding="UTF-8" ?>
 <CycloneDDS xmlns="https://cdds.io/config">
   <Domain>
@@ -43,49 +107,9 @@ cat > ~/cyclonedds_config/cyclonedds.xml << 'XML_EOF'
         <WhcHigh>8MB</WhcHigh>
       </Watermarks>
     </Internal>
-    <Tracing>
-      <Verbosity>warning</Verbosity>
-      <OutputFile>/tmp/cyclonedds.log</OutputFile>
-    </Tracing>
   </Domain>
 </CycloneDDS>
-XML_EOF
-
-export CYCLONEDDS_URI=~/cyclonedds_config/cyclonedds.xml
-
-# Show environment status
-echo "CUDA Environment:"
-echo "CUDA Path: $PATH"
-echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
-echo "RMW Implementation: $RMW_IMPLEMENTATION"
-
-# Check CUDA availability with OpenCV
-if python3 -c "import cv2; print('CUDA available:', cv2.cuda.getCudaEnabledDeviceCount() > 0)" 2>/dev/null; then
-  echo "OpenCV CUDA configuration: OK"
-else
-  echo "OpenCV CUDA not detected, installing CUDA support..."
-  sudo apt update
-  sudo apt install -y libopencv-dev python3-opencv libopencv-cuda4.2
-fi
-
-# System monitoring tools
-echo "Installing system monitoring tools..."
-sudo apt install -y nvtop htop
 EOF
 
-# Make the script executable
-chmod +x ~/.cuda/foxy_cuda_setup.sh
-
-# Add to .bashrc
-if ! grep -q "foxy_cuda_setup.sh" ~/.bashrc; then
-  echo "" >> ~/.bashrc
-  echo "# ROS2 Foxy with CUDA setup" >> ~/.bashrc
-  echo "source ~/.cuda/foxy_cuda_setup.sh" >> ~/.bashrc
-  echo "source /opt/ros/foxy/setup.bash" >> ~/.bashrc
-  echo "source ~/foxy_ws/install/setup.bash" >> ~/.bashrc
-fi
-
-# Run the script now
-source ~/.cuda/foxy_cuda_setup.sh
-
-echo "Xavier NX setup complete! Please restart your terminal."
+log "Xavier NX setup complete! Please reboot your system."
+exit 0
