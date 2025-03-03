@@ -27,7 +27,7 @@ def generate_launch_description():
         # RPLIDAR
         Node(
             package='rplidar_ros',
-            executable='rplidar_node',  # In Foxy might be different
+            executable='rplidar',  # In Foxy might be different
             name='rplidar',
             parameters=[{
                 'serial_port': '/dev/ttyUSB0',
