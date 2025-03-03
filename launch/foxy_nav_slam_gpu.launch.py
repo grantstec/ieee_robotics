@@ -99,9 +99,9 @@ def generate_launch_description():
             parameters=[{
                 'serial_port': '/dev/ttyUSB0',
                 'serial_baudrate': 115200,
-                'frame_id': 'lidar',
+                'frame_id': 'lidar_link',
                 'angle_compensate': True,
-                'scan_mode': 'Standard'  # Foxy may use 'Standard' instead of 'Boost'
+                'scan_mode': 'Boost'  # Foxy may use 'Standard' instead of 'Boost'
             }]
         ),
         
