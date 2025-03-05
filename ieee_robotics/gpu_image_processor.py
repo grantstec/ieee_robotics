@@ -87,21 +87,11 @@ class GPUImageProcessor(Node):
         """Initialize processing tools for GPU or CPU usage."""
         if self.use_gpu and self.cuda_available:
             # For GPU processing
-            self.gpu_stream = cv2.cuda_Stream()
+            self.gpu_stream = cv2.cuda.Stream()
             
-            # GPU-based filters
-            try:
-                self.gpu_bilateral_filter = cv2.cuda.createBilateralFilter(
-                    srcType=cv2.CV_32F, 
-                    dstType=cv2.CV_32F, 
-                    kernel_size=5, 
-                    sigma_color=75, 
-                    sigma_spatial=75
-                )
-                self.get_logger().info("Successfully initialized GPU filters")
-            except Exception as e:
-                self.get_logger().error(f"Error initializing GPU filters: {str(e)}")
-                self.use_gpu = False
+            # No need to create a filter object in advance
+            # We'll use cv2.cuda.GaussianFilter directly in the processing
+            self.get_logger().info("Successfully initialized GPU processing")
         
         # Compute lookup tables for scan processing
         self.compute_trigonometry_tables()
@@ -129,9 +119,11 @@ class GPUImageProcessor(Node):
                 d_ranges = cv2.cuda_GpuMat()
                 d_ranges.upload(ranges.reshape(-1, 1))
                 
-                # Apply GPU filters
-                d_filtered = cv2.cuda.GpuMat(d_ranges.size(), d_ranges.type())
-                self.gpu_bilateral_filter.apply(d_ranges, d_filtered, self.gpu_stream)
+                # Apply GPU-based Gaussian filter (instead of bilateral filter)
+                # Create the filter on-the-fly
+                d_filtered = cv2.cuda.createGaussianFilter(
+                    cv2.CV_32FC1, cv2.CV_32FC1, (5, 5), 1.5
+                ).apply(d_ranges)
                 
                 # Download results
                 ranges_filtered = d_filtered.download().flatten()
@@ -150,9 +142,8 @@ class GPUImageProcessor(Node):
         else:
             # CPU-based processing
             try:
-                ranges_filtered = cv2.bilateralFilter(
-                    ranges.reshape(-1, 1), 
-                    5, 75, 75
+                ranges_filtered = cv2.GaussianBlur(
+                    ranges.reshape(-1, 1), (5, 5), 1.5
                 ).flatten()
             except cv2.error as e:
                 self.get_logger().error(f"CPU processing error: {str(e)}")
@@ -222,6 +213,8 @@ class GPUImageProcessor(Node):
                 # Upload and apply final GPU processing
                 d_vis_map = cv2.cuda_GpuMat()
                 d_vis_map.upload(vis_map)
+                
+                # Apply Gaussian blur using GPU
                 d_blurred = cv2.cuda.createGaussianFilter(
                     cv2.CV_8UC3, cv2.CV_8UC3, (3, 3), 1.5
                 ).apply(d_vis_map)

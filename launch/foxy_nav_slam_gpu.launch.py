@@ -34,7 +34,7 @@ def generate_launch_description():
         
         # Xavier NX Performance Mode
         ExecuteProcess(
-            cmd=['bash', '-c', 'sudo nvpmodel -m 0 && sudo jetson_clocks'],
+            cmd=['bash', '-c', 'sudo nvpmodel -m 8 && sudo jetson_clocks && sudo jetson_clocks --fan'],
             output='screen'
         ),
         
