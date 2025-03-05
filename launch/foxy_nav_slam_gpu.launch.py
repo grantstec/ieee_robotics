@@ -16,7 +16,7 @@ def generate_launch_description():
     urdf_file = os.path.join(ieee_robotics_share, 'urdf', 'robot.urdf')
     
     # Config files
-    ekf_config_file = os.path.join(ieee_robotics_share, 'config', 'ekf.yaml')
+    ekf_config_file = os.path.join(ieee_robotics_share, 'config', 'ekf_debug.yaml')
     
     # Use Foxy-specific Nav2 parameters file
     nav2_params_file = os.path.join(ieee_robotics_share, 'config', 'foxy_nav2_params.yaml')
