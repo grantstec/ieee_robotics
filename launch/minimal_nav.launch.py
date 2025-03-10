@@ -55,6 +55,12 @@ def generate_launch_description():
             executable='wheel_odometry',
             name='wheel_odometry'
         ),
+
+        Node(
+            package='ieee_robotics',
+            executable='twist_to_motors',
+            name='twist_to_motors',
+        ),
         
         # 3. Fixed LIDAR setup with explicit Standard mode
         Node(
