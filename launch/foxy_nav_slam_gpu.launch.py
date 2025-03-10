@@ -24,28 +24,31 @@ def generate_launch_description():
     # Launch arguments
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
     autostart = LaunchConfiguration('autostart', default='true')
-    use_gpu = LaunchConfiguration('use_gpu', default='true')
+    use_gpu = LaunchConfiguration('use_gpu', default='false')  # Start with GPU disabled for testing
     
     return LaunchDescription([
         # Launch Arguments
         DeclareLaunchArgument('use_sim_time', default_value='false'),
         DeclareLaunchArgument('autostart', default_value='true'),
-        DeclareLaunchArgument('use_gpu', default_value='true'),
+        DeclareLaunchArgument('use_gpu', default_value='false'),
         
         # Xavier NX Performance Mode
         ExecuteProcess(
-            cmd=['bash', '-c', 'sudo nvpmodel -m 8 && sudo jetson_clocks && sudo jetson_clocks --fan'],
+            cmd=['bash', '-c', 'sudo nvpmodel -m 0 && sudo jetson_clocks'],
             output='screen'
         ),
         
-        # Core Robot Components
+        # Core Robot Components with improved TF settings
         Node(
             package='robot_state_publisher',
             executable='robot_state_publisher',
             name='robot_state_publisher',
             output='screen',
             parameters=[{
-                'robot_description': ParameterValue(Command(['xacro ', urdf_file]), value_type=str)
+                'robot_description': ParameterValue(Command(['xacro ', urdf_file]), value_type=str),
+                'publish_frequency': 50.0,     # Higher frequency for TF
+                'ignore_timestamp': True,      # Improve TF stability
+                'use_tf_static': True          # Ensure static transforms are reliable
             }]
         ),
         
@@ -70,7 +73,7 @@ def generate_launch_description():
             name='wheel_odometry'
         ),
         
-        # EKF
+        # EKF with explicit rate
         Node(
             package='robot_localization',
             executable='ekf_node',
@@ -91,21 +94,22 @@ def generate_launch_description():
             name='twist_to_motors'
         ),
         
-        # SLAM - RPLidar
+        # SLAM - RPLidar with explicit settings matching minimal_nav
         Node(
             package='rplidar_ros',
-            executable='rplidar_composition',  # Different in Foxy!
+            executable='rplidar_composition',  # Keep this for Foxy
             name='rplidar',
             parameters=[{
                 'serial_port': '/dev/ttyUSB0',
                 'serial_baudrate': 115200,
-                'frame_id': 'lidar_link',
+                'frame_id': 'lidar_link',      # Match the URDF frame exactly
                 'angle_compensate': True,
-                'scan_mode': 'Boost'  # Foxy may use 'Standard' instead of 'Boost'
+                'scan_mode': 'Boost',
+                'scan_frequency': 10.0         # Explicit frequency setting
             }]
         ),
         
-        # SLAM Toolbox
+        # SLAM Toolbox with improved TF settings
         Node(
             package='slam_toolbox',
             executable='async_slam_toolbox_node',
@@ -117,18 +121,21 @@ def generate_launch_description():
                 'odom_frame': 'odom',
                 'map_frame': 'map',
                 'resolution': 0.05,
-                'max_laser_range': 10.0,
-                'transform_publish_period': 0.02,
-                # Performance settings for Xavier
-                'threads': 4,  # Xavier NX has 6 cores, leave 2 for other processes
+                'max_laser_range': 8.0,        # Reduced from 10.0 to match minimal_nav
+                'transform_publish_period': 0.05,  # Increased from 0.02
+                'tf_buffer_duration': 30.0,    # Longer TF buffer like minimal_nav
+                'map_update_interval': 5.0,    # Reduced update frequency
+                'threads': 4,                  # Keep multithreading but limit threads
                 'use_multithread': True,
-                'ceres_linear_solver': 'SPARSE_NORMAL_CHOLESKY', 
+                'debug_logging': True,         # Enable for troubleshooting
+                'throttle_scans': 1,           # Process every scan
+                'ceres_linear_solver': 'SPARSE_NORMAL_CHOLESKY',
                 'ceres_preconditioner': 'SCHUR_JACOBI',
                 'solver_plugin': 'solver_plugins::CeresSolver'
             }]
         ),
         
-        # GPU-Accelerated Processing
+        # GPU-Accelerated Processing (disabled initially)
         Node(
             package='ieee_robotics',
             executable='gpu_image_processor',
@@ -137,9 +144,9 @@ def generate_launch_description():
             output='screen'
         ),
         
-        # Navigation - with delay to allow SLAM to initialize
+        # Navigation - with longer delay to ensure SLAM is properly initialized
         TimerAction(
-            period=5.0,
+            period=10.0,  # Increased from 5.0 to 10.0 seconds
             actions=[
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(os.path.join(
@@ -157,15 +164,18 @@ def generate_launch_description():
             ]
         ),
         
-        # RViz visualization
+        # RViz visualization - with longer delay after Navigation is started
         TimerAction(
-            period=7.0,
+            period=15.0,  # Increased from 7.0 to 15.0 seconds
             actions=[
                 Node(
                     package='rviz2',
                     executable='rviz2',
                     name='rviz2',
-                    arguments=['-d', os.path.join(nav2_bringup_share, 'rviz', 'nav2_default_view.rviz')],
+                    arguments=[
+                        '-d', os.path.join(nav2_bringup_share, 'rviz', 'nav2_default_view.rviz'),
+                        '--enable-ogre-thread'  # Keep GPU acceleration for RViz
+                    ],
                     output='screen'
                 ),
             ]
