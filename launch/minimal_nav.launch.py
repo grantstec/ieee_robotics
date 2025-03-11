@@ -2,6 +2,8 @@ import os
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
+from launch.actions import TimerAction
+
 
 def generate_launch_description():
     ieee_robotics_share = get_package_share_directory('ieee_robotics')
@@ -43,12 +45,6 @@ def generate_launch_description():
             parameters=[{'port': '/dev/ttyACM1'}]
         ),
         
-        Node(
-            package='ieee_robotics',
-            executable='teensy_bridge',
-            name='teensy_bridge',
-            parameters=[{'port': '/dev/ttyACM0'}]
-        ),
         
         Node(
             package='ieee_robotics',
@@ -97,5 +93,17 @@ def generate_launch_description():
                 'throttle_scans': 1                # Process every scan
             }]
         ),
+        TimerAction(
+            period=10.0,
+            actions=[
+                Node(
+                    package='ieee_robotics',
+                    executable='teensy_bridge',
+                    name='teensy_bridge',
+                    output='screen',
+                    parameters=[{'port': '/dev/ttyACM0'}]
+                )
+            ]
+        )
         
     ])
