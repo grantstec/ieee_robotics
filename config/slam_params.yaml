@@ -8,52 +8,43 @@ slam_toolbox:
     odom_frame: odom
     map_frame: map
     
-    # Optimization for Jetson Xavier NX
-    solver_plugin: solver_plugins::CeresSolver
-    ceres_linear_solver: SPARSE_NORMAL_CHOLESKY
-    ceres_preconditioner: SCHUR_JACOBI
-    ceres_trust_strategy: LEVENBERG_MARQUARDT
-    ceres_dogleg_type: TRADITIONAL_DOGLEG
-    ceres_loss_function: HUBER_LOSS
+    # Basic operation settings
     mode: mapping
-    debug_logging: false
+    debug_logging: true
     throttle_scans: 1
-    transform_publish_period: 0.02
-    map_update_interval: 2.0
+    transform_publish_period: 0.1  # Increased from 0.02 to reduce CPU load
+    map_update_interval: 5.0
     resolution: 0.05
-    max_laser_range: 10.0 # for RPLidar A1M8
-    minimum_time_interval: 0.2
-    transform_timeout: 0.2
-    tf_buffer_duration: 20.0
-    stack_size_to_use: 10000000 # program needs a larger stack size to serialize large maps
-    enable_interactive_mode: false
-
-    # Multithreading settings (leverage Xavier NX cores)
-    threads: 6
-    use_multithread: true
-
-    # SLAM specific parameters
+    max_laser_range: 5.0           # Reduced for the A1M8 (more stable)
+    minimum_time_interval: 0.5     # Increased to avoid too frequent updates
+    transform_timeout: 0.5         # More forgiving
+    tf_buffer_duration: 30.0       # Longer TF buffer for stability
+    
+    # Disable fancy features for stability
+    use_multithread: false         # CRUCIAL: Avoids threading issues in Foxy
+    
+    # SLAM specific parameters - more conservative
     use_scan_matching: true
     use_scan_barycenter: true
-    minimum_travel_distance: 0.2
-    minimum_travel_heading: 0.1
-    scan_buffer_size: 10
-    scan_buffer_maximum_scan_distance: 10.0
-    link_match_minimum_response_fine: 0.1  
-    link_scan_maximum_distance: 1.5
+    minimum_travel_distance: 0.3   # Wait for more movement before updating
+    minimum_travel_heading: 0.15   # Wait for more rotation before updating
+    scan_buffer_size: 5            # Smaller buffer = less computation
+    scan_buffer_maximum_scan_distance: 5.0
+    link_match_minimum_response_fine: 0.15  
+    link_scan_maximum_distance: 2.0 # Reduced from 1.5
     loop_search_maximum_distance: 3.0
     do_loop_closing: true
-    loop_match_minimum_chain_size: 10
+    loop_match_minimum_chain_size: 5
     loop_match_maximum_variance_coarse: 3.0
     loop_match_minimum_response_coarse: 0.35    
     loop_match_minimum_response_fine: 0.45
 
-    # Correlation Parameters - Correlation Parameters
-    correlation_search_space_dimension: 0.5
+    # Correlation Parameters - made more lenient
+    correlation_search_space_dimension: 0.6     # Increased from 0.5
     correlation_search_space_resolution: 0.01
     correlation_search_space_smear_deviation: 0.1
 
-    # Correlation Parameters - Loop Closure Parameters
+    # Loop Closure Parameters - made more lenient
     loop_search_space_dimension: 8.0
     loop_search_space_resolution: 0.05
     loop_search_space_smear_deviation: 0.03
