@@ -58,7 +58,7 @@ class TeensyBridge(Node):
         goal1 = PoseStamped()
         goal1.header.frame_id = "map"
         goal1.header.stamp = self.get_clock().now().to_msg()
-        goal1.pose.position.x = 2.0
+        goal1.pose.position.x = 1.5
         goal1.pose.position.y = 0.0
         goal1.pose.position.z = 0.0
         goal1.pose.orientation.x = 0.0
@@ -69,8 +69,8 @@ class TeensyBridge(Node):
         goal2 = PoseStamped()
         goal2.header.frame_id = "map"
         goal2.header.stamp = self.get_clock().now().to_msg()
-        goal2.pose.position.x = 2.0
-        goal2.pose.position.y = 2.0
+        goal2.pose.position.x = 1.7
+        goal2.pose.position.y = 1.7
         goal2.pose.position.z = 0.0
         # For 45 degrees rotation, use quaternion values:
         goal2.pose.orientation.x = 0.0
@@ -82,7 +82,7 @@ class TeensyBridge(Node):
         goal3.header.frame_id = "map"
         goal3.header.stamp = self.get_clock().now().to_msg()
         goal3.pose.position.x = 0.0
-        goal3.pose.position.y = 2.0
+        goal3.pose.position.y = 1.5
         goal3.pose.position.z = 0.0
         # For 90 degrees rotation, use quaternion values:
         goal3.pose.orientation.x = 0.0

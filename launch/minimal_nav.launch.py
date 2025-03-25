@@ -69,8 +69,7 @@ def generate_launch_description():
                 'serial_baudrate': 115200,
                 'frame_id': 'lidar_link',  # Must match the URDF
                 'angle_compensate': True,
-                'scan_mode': 'Boost',    # Force to Standard mode
-                'scan_frequency': 10.0      # Set explicit frequency
+                'scan_mode': 'Boost'    # Force to Standard mode   
             }]
         ),
         
@@ -85,7 +84,7 @@ def generate_launch_description():
                 'base_frame': 'base_link',
                 'odom_frame': 'odom',
                 'map_frame': 'map',
-                'resolution': 0.05,
+                'resolution': 0.01,
                 'max_laser_range': 8.0,
                 'transform_publish_period': 0.05,  # Faster transform publishing
                 'tf_buffer_duration': 30.0,        # Longer TF buffer
@@ -93,17 +92,14 @@ def generate_launch_description():
                 'throttle_scans': 1                # Process every scan
             }]
         ),
-        TimerAction(
-            period=10.0,
-            actions=[
-                Node(
-                    package='ieee_robotics',
-                    executable='teensy_bridge',
-                    name='teensy_bridge',
-                    output='screen',
-                    parameters=[{'port': '/dev/ttyACM0'}]
-                )
-            ]
+
+        Node(
+            package='ieee_robotics',
+            executable='teensy_bridge',
+            name='teensy_bridge',
+            output='screen',
+            parameters=[{'port': '/dev/ttyACM0'}]
         )
+
         
     ])
