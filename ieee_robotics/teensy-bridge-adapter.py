@@ -23,6 +23,7 @@ class TeensyBridgeAdapter(Node):
         self.current_round = 1
         self.round_active = False
         self.bypass_teensy_fire_detection = False
+        self.switch_activated = False
         
         # Subscribers
         self.round_sub = self.create_subscription(
@@ -51,6 +52,14 @@ class TeensyBridgeAdapter(Node):
             PoseStamped,
             'goal_pose',
             self.goal_pose_callback,
+            10
+        )
+
+        # Monitor switch state
+        self.switch_sub = self.create_subscription(
+            Bool,
+            'hardware/start_switch',
+            self.switch_callback,
             10
         )
         
@@ -106,18 +115,24 @@ class TeensyBridgeAdapter(Node):
         Helps track when teensy sends goals in Round 1.
         """
         if self.current_round == 1:
-            self.get_logger().info(f"Teensy sent goal pose: ({msg.pose.position.x}, {msg.pose.position.y})")
-            
-            ########
-            # In a real implementation, you could add code here to:
-            # 1. Forward the goal to another topic if needed
-            # 2. Log the goal for debugging
-            # 3. Improve interactions with the round manager
+            self.get_logger().info(f"Received goal pose: ({msg.pose.position.x}, {msg.pose.position.y})")
+    
+    def switch_callback(self, msg):
+        """Monitor hardware switch state"""
+        self.switch_activated = msg.data
+        
+        # Update teensy state when switch changes
+        if self.switch_activated:
+            self.update_teensy_state()
     
     def update_teensy_state(self):
         """Update teensy_bridge's state based on current round"""
         # Only enable fire detection state machine in Round 1
-        teensy_active = self.current_round == 1
+        # AND only when the round is active
+        # AND only when the switch is activated
+        teensy_active = (self.current_round == 1 and 
+                        self.round_active and 
+                        self.switch_activated)
         
         # Create message to control teensy's goal_active parameter
         msg = Bool()
@@ -127,9 +142,9 @@ class TeensyBridgeAdapter(Node):
         self.teensy_goal_active_pub.publish(msg)
         
         if teensy_active:
-            self.get_logger().info("Enabled teensy_bridge fire detection for Round 1")
+            self.get_logger().info("Enabled fire detection for Round 1")
         else:
-            self.get_logger().info(f"Disabled teensy_bridge fire detection for Round {self.current_round}")
+            self.get_logger().info(f"Disabled fire detection for Round {self.current_round}")
 
 def main(args=None):
     rclpy.init(args=args)

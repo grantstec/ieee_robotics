@@ -16,6 +16,7 @@ from std_msgs.msg import Int32, String, Bool
 from geometry_msgs.msg import PoseStamped, Twist
 from nav_msgs.msg import OccupancyGrid
 from sensor_msgs.msg import LaserScan
+from nav_msgs.msg import Odometry
 import json
 import math
 import threading
